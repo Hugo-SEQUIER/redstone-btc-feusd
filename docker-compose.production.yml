@@ -1,0 +1,89 @@
+services:
+  # Your price calculation service
+  python-price-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - .:/app
+    restart: unless-stopped
+    networks:
+      - private_network
+      - public_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # RedStone Oracle Node
+  redstone-oracle-node:
+    image: public.ecr.aws/y7v2w8b2/redstone-oracle-node@sha256:07eb1cc4aa3a4f0275c2ef5c2f9a95af06150e35211e20f66f9b24ab1c05cef7
+    restart: always
+    depends_on:
+      - redstone-kms
+      - python-price-service
+    networks:
+      - public_network
+      - private_network
+    volumes:
+      - redstone-oracle-node:/oracle-node-level-db
+      - ./manifests:/manifests
+    environment:
+      OVERRIDE_DIRECT_CACHE_SERVICE_URLS: '["https://httpbin.org/anything"]'
+      OVERRIDE_MANIFEST_USING_FILE: ./manifests/manifest.json
+      PRICE_CACHE_LOCATION: /oracle-node-level-db
+      REMOTE_SIGNER_URL: http://redstone-kms:4499
+      ENABLE_REMOTE_SIGNER: true
+      NODE_ENV: production
+      # HyperEVM Testnet configuration
+      EVM_CHAIN_ID: 998
+      REDSTONE_NETWORK: testnet
+
+  # RedStone KMS (Key Management Service)
+  redstone-kms:
+    restart: always
+    image: public.ecr.aws/y7v2w8b2/kms@sha256:d069bc9afcd1b4e6884e2d4e530d90c94db0aaf1a2265d7facb4f4e2d2fefb3d
+    networks:
+      - private_network
+    expose:
+      - "4499"
+    environment:
+      KMS_PRIVATE_KEY_FILE: /run/secrets/private_key
+      KMS_ADDRESS: 0.0.0.0:4499
+    secrets:
+      - private_key
+
+  # RedStone Push Relayer for HyperEVM Testnet
+  redstone-push-relayer:
+    build:
+      context: .
+      dockerfile: Dockerfile.relayer
+    restart: unless-stopped
+    depends_on:
+      - python-price-service
+    networks:
+      - public_network
+    env_file:
+      - ./redstone-push.env
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: ["node", "relayer.js"]
+
+secrets:
+  private_key:
+    file: ./secrets/private_key.txt
+
+volumes:
+  redstone-oracle-node:
+
+networks:
+  public_network:
+    driver: bridge
+  private_network:
+    internal: true # This ensures the network is private

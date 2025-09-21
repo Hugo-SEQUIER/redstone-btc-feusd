@@ -1,0 +1,28 @@
+{
+  "name": "redstone-btc-feusd-push",
+  "version": "1.0.0",
+  "description": "RedStone Push deployment for BTC-FEUSD on HyperEVM Testnet",
+  "main": "deploy-adapter.js",
+  "scripts": {
+    "deploy": "npx hardhat compile && npx hardhat run deploy-adapter.js --network hyperevm",
+    "compile": "npx hardhat compile",
+    "deploy-local": "node deploy-adapter.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "ethers": "^6.8.0",
+    "dotenv": "^16.3.1",
+    "axios": "^1.6.0",
+    "express": "^4.18.2",
+    "hardhat": "^2.19.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.4"
+  },
+  "keywords": [
+    "redstone",
+    "oracle",
+    "hyperevm",
+    "defi"
+  ],
+  "author": "",
+  "license": "MIT"
+}

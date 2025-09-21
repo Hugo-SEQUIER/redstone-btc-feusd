@@ -1,0 +1,21 @@
+{
+  "interval": 600000,
+  "priceAggregator": "redstone-rapid",
+  "defaultSource": ["btc-feusd-model"],
+  "sourceTimeout": 50000,
+  "maxPriceDeviationPercent": 1.0,
+  "evmChainId": 998,
+  "tokens": {
+    "BTC-FEUSD": {
+      "source": ["btc-feusd-model"]
+    }
+  },
+  "sources": {
+    "btc-feusd-model": {
+      "url": "http://python-price-service:8000/price/btc-feusd/raw",
+      "jsonpath": "$.value",
+      "timeout": 10000
+    }
+  }
+}
+
