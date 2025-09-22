@@ -12,7 +12,7 @@
   },
   "sources": {
     "btc-feusd-model": {
-      "url": "http://python-price-service:8000/price/btc-feusd/raw",
+      "url": "http://python-price-service:8060/price/btc-feusd/raw",
       "jsonpath": "$.value",
       "timeout": 10000
     }

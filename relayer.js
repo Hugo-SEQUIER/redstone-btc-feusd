@@ -63,7 +63,7 @@ class RedStonePushRelayer {
   // Fetch price from your price service
   async fetchPrice(symbol) {
     try {
-      const response = await axios.get(`http://python-price-service:8000/price/btc-feusd`, {
+      const response = await axios.get(`http://python-price-service:8060/price/btc-feusd`, {
         timeout: 30000
       });
       
